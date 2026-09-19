@@ -40,3 +40,18 @@ jobs:
           context: .
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/nodeapp:${{ steps.vars.outputs.sha_short }}
+
+      - name: Prepare SSH key
+        run: |
+          echo "${{ secrets.EC2_SSH_KEY_B64 }}" | base64 -d > ec2-key.pem
+          chmod 600 ec2-key.pem
+          mkdir -p ~/.ssh
+          ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Deploy Docker container to EC2
+        run: |
+          ssh -i ec2-key.pem "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" << EOF
+            sudo docker pull "${{ secrets.DOCKERHUB_USERNAME }}/nodeapp:${{ steps.vars.outputs.sha_short }}"
+            sudo docker rm -f nodeapp || true
+            sudo docker run -d --name nodeapp --restart unless-stopped -p 3000:3000 "${{ secrets.DOCKERHUB_USERNAME }}/nodeapp:${{ steps.vars.outputs.sha_short }}"
+          EOF
