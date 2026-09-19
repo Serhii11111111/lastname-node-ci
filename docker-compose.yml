@@ -1,0 +1,35 @@
+services:
+  app:
+    image: serhii5/nodeapp:main
+    container_name: nodeapp
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: nodeapp
+      DB_USER: nodeapp
+      DB_PASSWORD: nodeapp_password
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: nodeapp-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: nodeapp
+      POSTGRES_USER: nodeapp
+      POSTGRES_PASSWORD: nodeapp_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nodeapp -d nodeapp"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
