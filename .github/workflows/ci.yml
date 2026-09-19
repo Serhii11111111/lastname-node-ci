@@ -63,8 +63,7 @@ jobs:
             cd /home/${{ secrets.EC2_USER }}
             sudo docker rm -f nodeapp || true
             sudo docker compose down || true
-            sudo docker pull "${{ secrets.DOCKERHUB_USERNAME }}/nodeapp:main"
-            sudo docker compose pull
-            sudo docker compose up -d
-            sudo docker compose ps
+            sudo IMAGE_TAG=${{ steps.vars.outputs.sha_short }} docker compose pull
+            sudo IMAGE_TAG=${{ steps.vars.outputs.sha_short }} docker compose up -d
+            sudo IMAGE_TAG=${{ steps.vars.outputs.sha_short }} docker compose ps
           EOF

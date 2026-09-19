@@ -1,22 +1,22 @@
 services:
   app:
-    image: serhii5/nodeapp:main
+    image: serhii5/nodeapp:${IMAGE_TAG}
     container_name: nodeapp
     restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
-      DB_HOST: postgres
+      DB_HOST: db
       DB_PORT: 5432
       DB_NAME: nodeapp
       DB_USER: nodeapp
       DB_PASSWORD: nodeapp_password
     depends_on:
-      postgres:
+      db:
         condition: service_healthy
 
-  postgres:
-    image: postgres:16-alpine
+  db:
+    image: postgres:15
     container_name: nodeapp-postgres
     restart: unless-stopped
     environment:
