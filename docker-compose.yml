@@ -1,5 +1,6 @@
 services:
   app:
+    build: .
     image: serhii5/nodeapp:${IMAGE_TAG}
     container_name: nodeapp
     restart: unless-stopped
