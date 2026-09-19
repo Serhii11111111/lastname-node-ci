@@ -1,0 +1,5 @@
+aws_region       = "us-east-1"
+ami_id           = "ami-0fb0b230890ccd1e6"
+instance_type    = "t3.micro"
+key_name         = "devops-key"
+private_key_path = "D:/Учеба/4 курс/Адміністрування/практична 6/devops-key.pem"
