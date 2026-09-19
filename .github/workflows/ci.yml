@@ -53,10 +53,18 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts
 
-      - name: Deploy Docker container to EC2
+      - name: Copy Docker Compose file to EC2
+        run: |
+          scp -i ec2-key.pem docker-compose.yml "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/docker-compose.yml"
+
+      - name: Deploy with Docker Compose
         run: |
           ssh -i ec2-key.pem "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" << EOF
-            sudo docker pull "${{ secrets.DOCKERHUB_USERNAME }}/nodeapp:${{ steps.vars.outputs.sha_short }}"
+            cd /home/${{ secrets.EC2_USER }}
             sudo docker rm -f nodeapp || true
-            sudo docker run -d --name nodeapp --restart unless-stopped -p 3000:3000 "${{ secrets.DOCKERHUB_USERNAME }}/nodeapp:${{ steps.vars.outputs.sha_short }}"
+            sudo docker compose down || true
+            sudo docker pull "${{ secrets.DOCKERHUB_USERNAME }}/nodeapp:main"
+            sudo docker compose pull
+            sudo docker compose up -d
+            sudo docker compose ps
           EOF
